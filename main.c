@@ -58,6 +58,10 @@ void interruptHandler()
 			key.r = key.r+10;
 			drawTetrimino(key);
 		}
+		if ((frame % 120) == 0)
+		{
+			rotateLeft(key);
+		}
 	}
 	REG_IF = REG_IF;
 	REG_IME = 0x1;
@@ -67,11 +71,11 @@ void enableVBlankInterrupt()
 {
 	REG_IE = REG_IE | INT_VB;      // Enable vblank interrupt detection
 	REG_DISPSTAT |= INT_VBLANK_ENABLE; // Make display generate
-	REG_KEYCNT |= INT_BUTTON_ENABLE;	
 	// vblank interrupts
 }
 
 void enableButtonInterrupt()
 {
 	REG_IE = REG_IE | INT_BUTTON;
+	REG_KEYCNT |= INT_BUTTON_ENABLE;	
 }

@@ -30,20 +30,41 @@ void sleep(int length) {
 
 void drawTetrimino(tetrimino key) 
 {
-	for (int x=0;x<4;x++)
-	{
-		for (int y=0;y<4;y++)
-		{
+	for (int x=0;x<4;x++) {
+		for (int y=0;y<4;y++) {
 			if (key.t[x*4+y] == 1)
-			{
 				drawRect(x*4+key.r, y*4+key.c, 4, 4, key.color);
-			}
+			else 
+				drawRect(x*4+key.r, y*4+key.c, 4, 4, RED);
 		}
 	}
 }
 
-void clearTetrimino(tetrimino key )
+void clearTetrimino(tetrimino key)
 {
 	drawRect(key.r, key.c, 16, 16, BLACK);
+}
+
+void rotateLeft(tetrimino key) 
+{
+	for (int x = 0; x < 4; x++) {
+		for (int y = 0; y < 4; y++) {
+			int save = key.t[4*x+y];
+			key.t[4*x+y] = key.t[4*y+x];
+			key.t[4*y+x] = save;
+		}
+	}
+}
+
+
+void rotateRight(tetrimino key)
+{ 
+	for (int x = 0; x < 4; x++) {
+		for (int y = 0; y < 4; y++) {
+		int save = key.t[4*y+x];
+		key.t[4*y+x] = key.t[4*x+y];
+		key.t[4*x+y] = save;
+		}
+	}
 }
 
