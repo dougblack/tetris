@@ -4,5 +4,6 @@
 *.a
 # crt0.o
 *.o
+*.ob
 # generated files
 Tetris.*
