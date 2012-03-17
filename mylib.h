@@ -36,3 +36,7 @@ void drawTetrimino(tetrimino key);
 void clearTetrimino(tetrimino key);
 void rotateLeft(tetrimino key);
 void rotateRight(tetrimino key);
+
+int sqran(int seed);
+int qran();
+int qran_range(int min, int max);

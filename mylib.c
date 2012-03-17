@@ -1,9 +1,8 @@
-// Douglas Black HW 8
-
+// mylib.c
 #include "mylib.h"
 
 u16 *videoBuffer = (u16*) 0x6000000;
-
+int __qran_seed = 1012;
 /* FUNCTION DECLARATIONS */
 
 // Sets the pixel at row r, column c to color
@@ -34,8 +33,6 @@ void drawTetrimino(tetrimino key)
 		for (int y=0;y<4;y++) {
 			if (key.t[x*4+y] == 1)
 				drawRect(x*4+key.r, y*4+key.c, 4, 4, key.color);
-			else 
-				drawRect(x*4+key.r, y*4+key.c, 4, 4, RED);
 		}
 	}
 }
@@ -61,10 +58,28 @@ void rotateRight(tetrimino key)
 { 
 	for (int x = 0; x < 4; x++) {
 		for (int y = 0; y < 4; y++) {
-		int save = key.t[4*y+x];
-		key.t[4*y+x] = key.t[4*x+y];
-		key.t[4*x+y] = save;
+			int save = key.t[4*y+x];
+			key.t[4*y+x] = key.t[4*x+y];
+			key.t[4*x+y] = save;
 		}
 	}
+}
+
+int sqran(int seed)
+{
+	int old = __qran_seed;
+	__qran_seed = seed;
+	return old;
+}
+
+int qran()
+{
+	__qran_seed = 1664525 * __qran_seed+1013904223;
+	return (__qran_seed >> 16) & 0x7FFF;
+}
+
+int qran_range(int min, int max)
+{
+	return (qran() * (max-min)>>15) + min;
 }
 
