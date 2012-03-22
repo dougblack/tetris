@@ -18,9 +18,9 @@ u16 colors[7] = {RED, BLUE, GREEN, YELLOW, MAGENTA, CYAN, WHITE}; // Tetrimino c
 int frame = 0;	// video frame
 tetrimino key;	// initial tetrimino, this is the one that falls.
 tetrimino next;	// next tetrimino to always be displayed top right of bard
-int matrix[22][10];
 int keyLastR;
 int keyLastC;
+int *keyLastT;
 int movedYet = 0;
 int updateSpeed = 10;
 int main() 
@@ -34,12 +34,19 @@ int main()
 	int *t;
 	int tetType = qran_range(0,7);
 	t = tetriminos[tetType];
+	int nextType = qran_range(0,7);
+	int *n;
+    n = tetriminos[nextType];
+	next.t = n;
+	next.color = colors[nextType];
+	setNextPiece(next);
 	key.t = t;
 	key.color = colors[tetType];
 	key.r = 0;
-	key.c = 50;
+	key.c = 5;
 	keyLastR = 0;
-	keyLastC = 50;
+	keyLastC = 5;
+	keyLastT = key.t;
 	while(1); 
 
 }
@@ -80,11 +87,17 @@ void interruptHandler()
 		frame++;
 		if ((frame % updateSpeed)==0) 
 		{
-			clearTetrimino(keyLastR, keyLastC);
-			key.r = key.r + 5;
-			drawTetrimino(key);	
+			if (checkBoundBottom(key) != 1) {
+				clearTetrimino(keyLastR, keyLastC, keyLastT);
+				key.r = key.r + 1;
+				drawTetrimino(key);	
+			} else {
+				placeKey();
+			}
+			drawMatrix();
 			keyLastR = key.r;
 			keyLastC = key.c;
+			keyLastT = key.t;
 			// Move falling tetrimino down every second 
 			movedYet = 0;
 		}
@@ -112,19 +125,19 @@ void enableButtonInterrupt()
 void keyLeft() 
 { 
 	storeKeyPosition();
-	key.c -= 5; 
+	key.c -= 1; 
 	movedYet = 1;
 }
 void keyRight()
 { 
 	storeKeyPosition();
-	key.c += 5; 
+	key.c += 1; 
 	movedYet = 1;
 }
 void keySoftDrop() 
 { 
 	storeKeyPosition();
-	key.r += 5; 
+	key.r += 1; 
 	movedYet = 1;
 }
 void keyHardDrop() {}
@@ -136,4 +149,41 @@ void storeKeyPosition()
 {
 	keyLastR = key.r;
 	keyLastC = key.c;
+}
+
+void setNextPiece(tetrimino next) {
+	drawRect(20, 170, 24, 24, BLACK);
+	for (int x = 0; x < 4; x++) {
+		for (int y = 0; y<4; y++) {
+			if (next.t[x*4+y] == 1)
+				drawRect(20 + x*6, 170+y*6, 6, 6, next.color);
+		}
+	}
+}
+
+
+void placeKey() {
+	for (int x = 0; x < 4; x++) {
+		for (int y = 0; y < 4; y++) {
+			if (key.t[x*4+y] == 1)
+				matrix[key.r+x][key.c+y] = 1;
+		}
+	}
+	key.t = next.t;
+	key.color = next.color;
+	key.r = 0;
+	key.c = 5;
+	int nextType = qran_range(0,7);
+	int *n;
+	n = tetriminos[nextType];
+	next.t = n;
+	next.color = colors[nextType];
+	setNextPiece(next);
+}
+int checkBoundBottom(tetrimino key) {
+		for (int x = 0; x<4; x++) {
+			if ((key.t[12+x] == 1) && (matrix[key.r+4][key.c+x] == 1))
+				return 1;
+		}
+		return 0;
 }

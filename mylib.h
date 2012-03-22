@@ -20,6 +20,7 @@
 
 typedef unsigned short u16;
 extern u16 *videoBuffer;
+extern int matrix[22][10];
 
 typedef struct {
 	int *t;
@@ -33,7 +34,8 @@ void setPixel(int r, int c, u16 color);
 void drawRect(int r, int c, int width, int height, u16 color);
 void sleep(int length);
 void drawTetrimino(tetrimino key);
-void clearTetrimino(int r, int c);
+void clearTetrimino(int r, int c, int *t);
+void drawMatrix();
 void rotateLeft(tetrimino key);
 void rotateRight(tetrimino key);
 

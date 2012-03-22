@@ -2,6 +2,7 @@
 #include "mylib.h"
 
 u16 *videoBuffer = (u16*) 0x6000000;
+int matrix[22][10];
 int __qran_seed = 10123;
 /* FUNCTION DECLARATIONS */
 
@@ -32,14 +33,31 @@ void drawTetrimino(tetrimino key)
 	for (int x=0;x<4;x++) {
 		for (int y=0;y<4;y++) {
 			if (key.t[x*4+y] == 1)
-				drawRect(x*6+key.r, y*6+key.c, 6, 6, key.color);
+				matrix[x+key.r][y+key.c] = 1;
 		}
 	}
 }
 
-void clearTetrimino(int r, int c)
+void drawMatrix()
 {
-	drawRect(r, c, 24, 24, BLACK);
+	for (int x = 0; x < 22; x++) {
+		for (int y = 0; y < 10; y++) {
+			if (matrix[x][y]==1)
+				drawRect(20+x*6, 90+y*6, 6, 6, RED); 
+			else 
+				drawRect(20+x*6, 90+y*6, 6, 6, LIGHTBLUE);
+		}
+	}
+}
+
+void clearTetrimino(int r, int c, int *t)
+{
+	for (int x=0;x<4;x++) {
+		for (int y=0;y<4;y++) {
+			if (t[x*4+y] == 1)
+				matrix[x+r][y+c] = 0;
+		}
+	}
 }
 
 void rotateLeft(tetrimino key) 

@@ -32,6 +32,8 @@
 
 typedef unsigned int u32;
 
+int checkBoundBottom(tetrimino key);
+
 void setupInterrupts(void);
 void enableButtonInterrupt();
 void enableVBlankInterrupt();
@@ -46,3 +48,5 @@ void keyRotateRight();
 void showMenu();
 void pause();
 void storeKeyPosition();
+void setNextPiece(tetrimino next);
+void placeKey();
