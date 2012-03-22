@@ -18,6 +18,11 @@ u16 colors[7] = {RED, BLUE, GREEN, YELLOW, MAGENTA, CYAN, WHITE}; // Tetrimino c
 int frame = 0;	// video frame
 tetrimino key;	// initial tetrimino, this is the one that falls.
 tetrimino next;	// next tetrimino to always be displayed top right of bard
+int matrix[22][10];
+int keyLastR;
+int keyLastC;
+int movedYet = 0;
+int updateSpeed = 10;
 int main() 
 { 
 	REG_DISPCTL = MODE3 | BG2_ENABLE;
@@ -30,10 +35,11 @@ int main()
 	int tetType = qran_range(0,7);
 	t = tetriminos[tetType];
 	key.t = t;
-	key.color = colors[];
+	key.color = colors[tetType];
 	key.r = 0;
 	key.c = 50;
-
+	keyLastR = 0;
+	keyLastC = 50;
 	while(1); 
 
 }
@@ -50,37 +56,39 @@ void setupInterrupts(void)
 void interruptHandler()
 {
 	REG_IME = 0x0;	//	disable interrupts
-	if (REG_IF == INT_BUTTON)
+	if ((REG_IF & INT_BUTTON) && (movedYet == 0))
 	{
-		int i = 0;
 		if (KEY_DOWN_NOW(KEY_RIGHT))
-			i=1;	// Move falling tetrimino right 
+			keyRight();
 		else if (KEY_DOWN_NOW(KEY_LEFT))
-			i=2;	// Move falling tetrimino left
+			keyLeft();
 		else if (KEY_DOWN_NOW(KEY_UP))
-			i=3;	// Hard drop falling tetrimino
+			keyHardDrop();
 		else if (KEY_DOWN_NOW(KEY_DOWN))
-			i=4;	// Soft drop falling tetrimino
+			keySoftDrop();
 		else if (KEY_DOWN_NOW(KEY_A))
-			i=5;	// Roate falling tetrimino right 90 degrees
+			keyRotateRight();
 		else if (KEY_DOWN_NOW(KEY_B))
-			i=6;	// Rotate falling tetrimino left 90 degrees
+			keyRotateLeft();
 		else if (KEY_DOWN_NOW(KEY_SELECT))
-			i=7;	// Return to main menu
+			showMenu();
 		else if (KEY_DOWN_NOW(KEY_START))
-			i=8;	// Pause?
+			pause();
 	} 	
-	if (REG_IF == INT_VB)
+	if (REG_IF & INT_VB)
 	{
 		frame++;
-		if ((frame % 60)==0) 
+		if ((frame % updateSpeed)==0) 
 		{
-			clearTetrimino(key);
-			key.r = key.r + 20;
+			clearTetrimino(keyLastR, keyLastC);
+			key.r = key.r + 5;
 			drawTetrimino(key);	
+			keyLastR = key.r;
+			keyLastC = key.c;
 			// Move falling tetrimino down every second 
+			movedYet = 0;
 		}
-	}
+	} 
 	REG_IF = REG_IF;
 	REG_IME = 0x1;
 }
@@ -95,4 +103,37 @@ void enableButtonInterrupt()
 {
 	REG_IE = REG_IE | INT_BUTTON;	// Enable button interrupt detection
 	REG_KEYCNT |= INT_BUTTON_ENABLE; // Make key input generate button interrupts
+	REG_KEYCNT |= KEY_UP;
+	REG_KEYCNT |= KEY_RIGHT;
+	REG_KEYCNT |= KEY_LEFT;
+	REG_KEYCNT |= KEY_DOWN;
+}
+
+void keyLeft() 
+{ 
+	storeKeyPosition();
+	key.c -= 5; 
+	movedYet = 1;
+}
+void keyRight()
+{ 
+	storeKeyPosition();
+	key.c += 5; 
+	movedYet = 1;
+}
+void keySoftDrop() 
+{ 
+	storeKeyPosition();
+	key.r += 5; 
+	movedYet = 1;
+}
+void keyHardDrop() {}
+void keyRotateLeft() {}
+void keyRotateRight() {}
+void showMenu() {}
+void pause() {}
+void storeKeyPosition() 
+{
+	keyLastR = key.r;
+	keyLastC = key.c;
 }

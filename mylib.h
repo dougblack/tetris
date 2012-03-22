@@ -33,7 +33,7 @@ void setPixel(int r, int c, u16 color);
 void drawRect(int r, int c, int width, int height, u16 color);
 void sleep(int length);
 void drawTetrimino(tetrimino key);
-void clearTetrimino(tetrimino key);
+void clearTetrimino(int r, int c);
 void rotateLeft(tetrimino key);
 void rotateRight(tetrimino key);
 

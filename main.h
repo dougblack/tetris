@@ -11,7 +11,7 @@
 
 //interupt constants for turning them on
 #define INT_VBLANK_ENABLE 1 << 3
-#define INT_BUTTON_ENABLE *(u16*) 0xE
+#define INT_BUTTON_ENABLE 1 << 14
 
 //interrupt constants for checking which type of interrupt happened
 #define INT_VB     1 <<  0	// VB – vertical blank interrupt
@@ -36,3 +36,13 @@ void setupInterrupts(void);
 void enableButtonInterrupt();
 void enableVBlankInterrupt();
 void interruptHandler();
+
+void keyLeft();
+void keyRight();
+void keySoftDrop();
+void keyHardDrop();
+void keyRotateLeft();
+void keyRotateRight();
+void showMenu();
+void pause();
+void storeKeyPosition();

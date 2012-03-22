@@ -2,7 +2,7 @@
 #include "mylib.h"
 
 u16 *videoBuffer = (u16*) 0x6000000;
-int __qran_seed = 1012;
+int __qran_seed = 10123;
 /* FUNCTION DECLARATIONS */
 
 // Sets the pixel at row r, column c to color
@@ -32,14 +32,14 @@ void drawTetrimino(tetrimino key)
 	for (int x=0;x<4;x++) {
 		for (int y=0;y<4;y++) {
 			if (key.t[x*4+y] == 1)
-				drawRect(x*4+key.r, y*4+key.c, 4, 4, key.color);
+				drawRect(x*6+key.r, y*6+key.c, 6, 6, key.color);
 		}
 	}
 }
 
-void clearTetrimino(tetrimino key)
+void clearTetrimino(int r, int c)
 {
-	drawRect(key.r, key.c, 16, 16, BLACK);
+	drawRect(r, c, 24, 24, BLACK);
 }
 
 void rotateLeft(tetrimino key) 
