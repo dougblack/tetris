@@ -22,6 +22,9 @@ typedef unsigned short u16;
 extern u16 *videoBuffer;
 extern int matrix[22][10];
 extern u16 colorMatrix[22][10];
+extern int clearedLines;
+extern int level;
+extern int fallSpeed;
 
 typedef struct {
 	int *t;
@@ -44,6 +47,7 @@ int checkBoundLeft(tetrimino key);
 int checkBoundRight(tetrimino key);
 void checkForScore();
 void clearRow(int row);
+void incrementLines();
 
 int sqran(int seed);
 int qran();

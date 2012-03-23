@@ -3,6 +3,8 @@
 
 u16 *videoBuffer = (u16*) 0x6000000;
 int matrix[22][10];
+int clearedLines;
+int level;
 u16 colorMatrix[22][10];
 int __qran_seed = 10;
 /* FUNCTION DECLARATIONS */
@@ -177,5 +179,14 @@ void clearRow(int row) {
 			else
 				matrix[i][j] = tempMatrix[i][j];	
 		}
+	}
+	incrementLines();
+}
+
+void incrementLines() {
+	clearedLines++;
+	if (clearedLines % 5) {
+		level++;
+		fallSpeed-=5;
 	}
 }

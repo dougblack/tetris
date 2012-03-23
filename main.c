@@ -25,8 +25,10 @@ int keyLastT[16];
 int movedYet = 0;
 int rotatedYet = 0;
 int droppedYet = 0;
-int fallSpeed = 10;
-int inputSpeed = 5;
+int clearedLines = 0;
+int level = 1;
+int fallSpeed = 40;
+int inputSpeed = 10;
 int placed = 0;
 int main() 
 { 
