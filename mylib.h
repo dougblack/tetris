@@ -21,6 +21,7 @@
 typedef unsigned short u16;
 extern u16 *videoBuffer;
 extern int matrix[22][10];
+extern u16 colorMatrix[22][10];
 
 typedef struct {
 	int *t;

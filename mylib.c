@@ -3,6 +3,7 @@
 
 u16 *videoBuffer = (u16*) 0x6000000;
 int matrix[22][10];
+u16 colorMatrix[22][10];
 int __qran_seed = 101234;
 /* FUNCTION DECLARATIONS */
 
@@ -32,8 +33,10 @@ void drawTetrimino(tetrimino key)
 {
 	for (int x=0;x<4;x++) {
 		for (int y=0;y<4;y++) {
-			if (key.t[x*4+y] == 1)
+			if (key.t[x*4+y] == 1) {
 				matrix[x+key.r][y+key.c] = 1;
+				colorMatrix[x+key.r][y+key.c] = key.color;
+			}
 		}
 	}
 }
@@ -43,7 +46,7 @@ void drawMatrix()
 	for (int x = 0; x < 22; x++) {
 		for (int y = 0; y < 10; y++) {
 			if (matrix[x][y]==1)
-				drawRect(15+x*6, 90+y*6, 4, 4, RED); 
+				drawRect(15+x*6, 90+y*6, 4, 4, colorMatrix[x][y]); 
 			else 
 				drawRect(15+x*6, 90+y*6, 6, 6, BLACK);
 		}
@@ -54,8 +57,10 @@ void clearTetrimino(int r, int c, int *t)
 {
 	for (int x=0;x<4;x++) {
 		for (int y=0;y<4;y++) {
-			if (t[x*4+y] == 1)
+			if (t[x*4+y] == 1) {
 				matrix[x+r][y+c] = 0;
+				colorMatrix[x+r][y+c] = 0;
+			}
 		}
 	}
 }
@@ -102,9 +107,13 @@ int qran_range(int min, int max)
 }
 
 int checkBoundBottom(tetrimino key) {
-		for (int x = 0; x<4; x++) {
-			if ((key.t[12+x] == 1) && ((matrix[key.r+4][key.c+x] == 1) || (key.r+4 > 21)))
+	for (int x = 0; x<4; x++) {	
+		for (int y = 0; y<4; y++) {
+			if ((key.t[4*x+y] == 1) && 
+				((key.r+x+1 > 21) || 
+					((key.t[4*(x+1) + y] == 0) && (matrix[key.r+x+1][key.c+y] == 1))))
 				return 1;
 		}
+	}
 		return 0;
 }

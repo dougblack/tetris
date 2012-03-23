@@ -21,10 +21,10 @@ tetrimino key;	// initial tetrimino, this is the one that falls.
 tetrimino next;	// next tetrimino to always be displayed top right of board
 int keyLastR;
 int keyLastC;
-int *keyLastT;
+int keyLastT[16];
 int movedYet = 0;
 int rotatedYet = 0;
-int updateSpeed = 20;
+int updateSpeed = 10;
 int main() 
 { 
 	REG_DISPCTL = MODE3 | BG2_ENABLE;
@@ -47,7 +47,9 @@ int main()
 	key.c = 5;
 	keyLastR = 0;
 	keyLastC = 5;
-	keyLastT = key.t;
+	for (int i = 0; i < 16; i++) {
+		keyLastT[i] = key.t[i];
+	}
 	drawMatrixBorders();
 	DEBUG_PRINT("\n[DEBUG]\n");
 	while(1); 
@@ -103,7 +105,11 @@ void interruptHandler()
 			drawMatrix();
 			keyLastR = key.r;
 			keyLastC = key.c;
-			keyLastT = key.t;
+			for (int i = 0; i < 16; i++) {
+				keyLastT[i] = key.t[i];
+			}
+			DEBUG_PRINT("\nLASTT\n");
+			printMatrix(keyLastT);
 			// Move falling tetrimino down every second 
 			movedYet = 0;
 			rotatedYet = 0;
@@ -171,7 +177,9 @@ void keyRotateLeft() {
 	a[13] = key.t[11];
 	a[14] = key.t[7];
 	a[15] = key.t[3];
-	key.t = a;
+	for (int i = 0; i < 16; i++) {
+		key.t[i] = a[i];
+	}
 	DEBUG_PRINT("A:\n");
 	printMatrix(a);
 	DEBUG_PRINT("T:\n");
@@ -200,8 +208,10 @@ void setNextPiece(tetrimino next) {
 void placeKey() {
 	for (int x = 0; x < 4; x++) {
 		for (int y = 0; y < 4; y++) {
-			if (key.t[x*4+y] == 1)
+			if (key.t[x*4+y] == 1) {
 				matrix[key.r+x][key.c+y] = 1;
+				colorMatrix[key.r+x][key.c+y] = key.color;
+			}
 		}
 	}
 	key.t = next.t;
@@ -235,4 +245,11 @@ void printMatrix(int *m) {
 		DEBUG_PRINT("\n");
 	}
 	DEBUG_PRINT("=======\n");
+}
+
+void storeMatrix(int *to, int* from)
+{
+	for (int i = 0; i < 16; i++) {
+		to[i] = from[i];
+	}
 }

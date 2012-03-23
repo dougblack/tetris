@@ -32,7 +32,6 @@
 
 typedef unsigned int u32;
 
-
 void setupInterrupts(void);
 void enableButtonInterrupt();
 void enableVBlankInterrupt();
@@ -51,3 +50,4 @@ void setNextPiece(tetrimino next);
 void placeKey();
 void drawMatrixBorders();
 void printMatrix(int *m);
+void storeMatrix(int *to, int *from);
