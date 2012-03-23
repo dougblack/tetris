@@ -29,6 +29,7 @@ int clearedLines = 0;
 int level = 1;
 int fallSpeed = 40;
 int inputSpeed = 10;
+int rotateSpeed = 20;
 int placed = 0;
 int main() 
 { 
@@ -103,6 +104,7 @@ void interruptHandler()
 		frame++;
 		if ((frame % fallSpeed)==0) 
 		{
+			placed = 0;
 			clearTetrimino(keyLastR, keyLastC, keyLastT);
 			if (checkBoundBottom(key) != 1) {
 				key.r = key.r + 1;
@@ -118,16 +120,15 @@ void interruptHandler()
 				clearTetrimino(keyLastR, keyLastC, keyLastT);
 				drawTetrimino(key);
 			}
-			drawMatrix();
 			keyLastR = key.r;
 			keyLastC = key.c;
 			for (int i = 0; i < 16; i++) {
 				keyLastT[i] = key.t[i];
 			}
 			movedYet = 0;
-			rotatedYet = 0;
 		}
-		placed = 0;
+		if ((frame % rotateSpeed)==0)
+			rotatedYet = 0;
 	} 
 	REG_IF = REG_IF;
 	REG_IME = 0x1;
@@ -265,6 +266,7 @@ void placeKey() {
 	n = tetriminos[nextType];
 	next.t = n;
 	next.color = colors[nextType];
+	drawMatrix();
 	setNextPiece(next);
 	droppedYet = 0;
 }

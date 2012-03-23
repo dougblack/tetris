@@ -36,8 +36,7 @@ void drawTetrimino(tetrimino key)
 	for (int x=0;x<4;x++) {
 		for (int y=0;y<4;y++) {
 			if (key.t[x*4+y] == 1) {
-				matrix[x+key.r][y+key.c] = 1;
-				colorMatrix[x+key.r][y+key.c] = key.color;
+				drawRect(15+(key.r+x)*6, 90+(key.c+y)*6, 4,4, key.color);
 			}
 		}
 	}
@@ -60,8 +59,7 @@ void clearTetrimino(int r, int c, int *t)
 	for (int x=0;x<4;x++) {
 		for (int y=0;y<4;y++) {
 			if (t[x*4+y] == 1) {
-				matrix[x+r][y+c] = 0;
-				colorMatrix[x+r][y+c] = 0;
+				drawRect(15+(r+x)*6, 90+(c+y)*6, 4, 4, BLACK);
 			}
 		}
 	}
