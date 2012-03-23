@@ -4,7 +4,7 @@
 u16 *videoBuffer = (u16*) 0x6000000;
 int matrix[22][10];
 u16 colorMatrix[22][10];
-int __qran_seed = 101234;
+int __qran_seed = 10;
 /* FUNCTION DECLARATIONS */
 
 // Sets the pixel at row r, column c to color
@@ -116,4 +116,66 @@ int checkBoundBottom(tetrimino key) {
 		}
 	}
 		return 0;
+}
+
+int checkBoundRight(tetrimino key) {
+	for (int x=0; x<4; x++) {
+		for (int y=0; y<4; y++) {
+			if ((key.t[4*x+y] == 1) && 
+				((key.c+y+1 > 9) || ((key.t[4*x+y+1]==0) && (matrix[key.r+x][key.c+y+1]==1))))
+				return 1;
+		}
+	}
+	return 0;
+}
+
+
+int checkBoundLeft(tetrimino key) {
+	for (int x=0; x<4; x++) {
+		for (int y=0; y<4; y++) {
+			if ((key.t[4*x+y] == 1) && 
+				((key.c+y-1 < 0) || ((key.t[4*x+y-1]==0) && (matrix[key.r+x][key.c+y-1]==1))))
+				return 1;
+		}
+	}
+	return 0;
+}
+
+void checkForScore() {
+//	DEBUG_PRINT("CHECKING FOR SCORE");
+	for (int i = 0; i < 22; i++) {
+		for (int j = 0; j < 10; j++) {
+			if (matrix[i][j] == 0)  {
+				break;
+			}
+			else if(j==9)  {
+				clearRow(i);
+//				DEBUG_PRINTF("Row: %d cleared", i);
+			}
+		}
+//		DEBUG_PRINTF("Row: %d checked", i);
+	}
+}
+
+void clearRow(int row) {
+	int tempMatrix[22][10];
+	for (int i = 21; i > 0; i--) {
+		if (i > row) {
+			for (int j = 0; j<10; j++) {
+				tempMatrix[i][j] = matrix[i][j];
+			}
+		} else {
+			for (int j = 0; j<10; j++) {
+				tempMatrix[i][j] = matrix[i-1][j];
+			}
+		}
+	}
+	for (int i = 0; i < 22; i++) {
+		for (int j = 0; j < 10; j++) {
+			if (i == 0)
+				matrix[i][j] = 0;
+			else
+				matrix[i][j] = tempMatrix[i][j];	
+		}
+	}
 }

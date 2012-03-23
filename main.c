@@ -14,7 +14,7 @@ int tetriminos[7][16] =							// Tetrimino matrix
 	{	0,0,0,0,0,1,0,0,0,1,1,0,0,0,1,0	},		// S
 	{	0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0	}	};	// Z
 
-u16 colors[7] = {RED, BLUE, GREEN, YELLOW, MAGENTA, CYAN, WHITE}; // Tetrimino colors
+u16 colors[7] = {YELLOW, CYAN, LIGHTRED, BLUE, MAGENTA, GREEN, RED}; // Tetrimino colors
 
 int frame = 0;	// video frame
 tetrimino key;	// initial tetrimino, this is the one that falls.
@@ -24,7 +24,10 @@ int keyLastC;
 int keyLastT[16];
 int movedYet = 0;
 int rotatedYet = 0;
-int updateSpeed = 10;
+int droppedYet = 0;
+int fallSpeed = 10;
+int inputSpeed = 5;
+int placed = 0;
 int main() 
 { 
 	REG_DISPCTL = MODE3 | BG2_ENABLE;
@@ -44,9 +47,9 @@ int main()
 	key.t = t;
 	key.color = colors[tetType];
 	key.r = 0;
-	key.c = 5;
+	key.c = 3;
 	keyLastR = 0;
-	keyLastC = 5;
+	keyLastC = 3;
 	for (int i = 0; i < 16; i++) {
 		keyLastT[i] = key.t[i];
 	}
@@ -68,23 +71,26 @@ void setupInterrupts(void)
 void interruptHandler()
 {
 	REG_IME = 0x0;	//	disable interrupts
-	if ((REG_IF & INT_BUTTON) && (movedYet == 0) && (rotatedYet == 0))
+	if ((REG_IF & INT_BUTTON) && (movedYet == 0) && (rotatedYet == 0) && (droppedYet == 0))
 	{
-		printMatrix(key.t);
-		if (KEY_DOWN_NOW(KEY_RIGHT))
+		if (KEY_DOWN_NOW(KEY_RIGHT)) 
 			keyRight();
 		else if (KEY_DOWN_NOW(KEY_LEFT))
 			keyLeft();
-		else if (KEY_DOWN_NOW(KEY_UP) && (rotatedYet == 0)) {
-			rotatedYet = 1;
-			keyRotateLeft();
+		else if (KEY_DOWN_NOW(KEY_UP)) {
+			droppedYet = 1;
+			keyHardDrop();
 		}
 		else if (KEY_DOWN_NOW(KEY_DOWN))
 			keySoftDrop();
-		else if (KEY_DOWN_NOW(KEY_A))
+		else if (KEY_DOWN_NOW(KEY_A)) {
+			rotatedYet = 1;
 			keyRotateRight();
-		else if (KEY_DOWN_NOW(KEY_B))
+		}
+		else if (KEY_DOWN_NOW(KEY_B)) {
+			rotatedYet = 1;
 			keyRotateLeft();
+		}
 		else if (KEY_DOWN_NOW(KEY_SELECT))
 			showMenu();
 		else if (KEY_DOWN_NOW(KEY_START))
@@ -93,7 +99,7 @@ void interruptHandler()
 	if (REG_IF & INT_VB)
 	{
 		frame++;
-		if ((frame % updateSpeed)==0) 
+		if ((frame % fallSpeed)==0) 
 		{
 			clearTetrimino(keyLastR, keyLastC, keyLastT);
 			if (checkBoundBottom(key) != 1) {
@@ -101,6 +107,14 @@ void interruptHandler()
 				drawTetrimino(key);
 			} else {
 				placeKey();
+				placed = 1;
+			}
+		}
+		if ((frame % inputSpeed)==0)
+		{
+			if (placed == 0) {
+				clearTetrimino(keyLastR, keyLastC, keyLastT);
+				drawTetrimino(key);
 			}
 			drawMatrix();
 			keyLastR = key.r;
@@ -108,12 +122,10 @@ void interruptHandler()
 			for (int i = 0; i < 16; i++) {
 				keyLastT[i] = key.t[i];
 			}
-			DEBUG_PRINT("\nLASTT\n");
-			printMatrix(keyLastT);
-			// Move falling tetrimino down every second 
 			movedYet = 0;
 			rotatedYet = 0;
 		}
+		placed = 0;
 	} 
 	REG_IF = REG_IF;
 	REG_IME = 0x1;
@@ -140,24 +152,31 @@ void enableButtonInterrupt()
 void keyLeft() 
 { 
 	storeKeyPosition();
-	key.c -= 1; 
+	if (checkBoundLeft(key) != 1)
+		key.c -= 1; 
 	movedYet = 1;
 }
 void keyRight()
 { 
 	storeKeyPosition();
-	key.c += 1; 
+	if (checkBoundRight(key) != 1)
+		key.c += 1; 
 	movedYet = 1;
 }
 void keySoftDrop() 
 { 
 	storeKeyPosition();
-	key.r += 1; 
+	if (checkBoundBottom(key) != 1)
+		key.r += 1; 
 	movedYet = 1;
 }
-void keyHardDrop() {}
+void keyHardDrop() {
+	storeKeyPosition();
+	while (checkBoundBottom(key) != 1)
+		key.r+=1;
+	movedYet = 1;	
+}
 void keyRotateLeft() {
-	printMatrix(key.t);
 	clearTetrimino(key.r, key.c, key.t);
 	storeKeyPosition();
 	int a[16] = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0};
@@ -180,12 +199,31 @@ void keyRotateLeft() {
 	for (int i = 0; i < 16; i++) {
 		key.t[i] = a[i];
 	}
-	DEBUG_PRINT("A:\n");
-	printMatrix(a);
-	DEBUG_PRINT("T:\n");
-	printMatrix(key.t);
 }
-void keyRotateRight() {}
+void keyRotateRight() {
+	clearTetrimino(key.r, key.c, key.t);
+	storeKeyPosition();
+	int a[16] = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0};
+	a[0] = key.t[3];
+	a[1] = key.t[7];
+	a[2] = key.t[11];
+	a[3] = key.t[15];
+	a[4] = key.t[2];
+	a[5] = key.t[6];
+	a[6] = key.t[10];
+	a[7] = key.t[14];
+	a[8] = key.t[1];
+	a[9] = key.t[5];
+	a[10] = key.t[9];
+	a[11] = key.t[13];
+	a[12] = key.t[0];
+	a[13] = key.t[4];
+	a[14] = key.t[8];
+	a[15] = key.t[12];
+	for (int i = 0; i < 16; i++) {
+		key.t[i] = a[i];
+	}
+}
 void showMenu() {}
 void pause() {}
 void storeKeyPosition() 
@@ -214,16 +252,19 @@ void placeKey() {
 			}
 		}
 	}
+	DEBUG_PRINT("CHECKING FOR SCORE?");
+	checkForScore();
 	key.t = next.t;
 	key.color = next.color;
 	key.r = 0;
-	key.c = 5;
+	key.c = 3;
 	int nextType = qran_range(0,7);
 	int *n;
 	n = tetriminos[nextType];
 	next.t = n;
 	next.color = colors[nextType];
 	setNextPiece(next);
+	droppedYet = 0;
 }
 
 void drawMatrixBorders() {
@@ -253,3 +294,4 @@ void storeMatrix(int *to, int* from)
 		to[i] = from[i];
 	}
 }
+

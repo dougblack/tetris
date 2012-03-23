@@ -15,7 +15,7 @@
 #define WHITE           RGB(31,31,31)
 #define LIGHTBLUE       RGB(0,0,10)
 #define LIGHTGREEN      RGB(0,10,0)
-#define LIGHTRED        RGB(10,0,0)
+#define LIGHTRED        RGB(31,10,0)
 #define BLACK			RGB(0,0,0) 
 
 typedef unsigned short u16;
@@ -40,6 +40,10 @@ void drawMatrix();
 void rotateLeft(tetrimino key);
 void rotateRight(tetrimino key);
 int checkBoundBottom(tetrimino key);
+int checkBoundLeft(tetrimino key);
+int checkBoundRight(tetrimino key);
+void checkForScore();
+void clearRow(int row);
 
 int sqran(int seed);
 int qran();
