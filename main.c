@@ -3,6 +3,7 @@
 #include "mylib.h"
 #include "main.h"
 #include "input.h"
+#include <debugging.h>
 
 int tetriminos[7][16] =							// Tetrimino matrix
 {	{	0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0	},		// O 
@@ -17,12 +18,13 @@ u16 colors[7] = {RED, BLUE, GREEN, YELLOW, MAGENTA, CYAN, WHITE}; // Tetrimino c
 
 int frame = 0;	// video frame
 tetrimino key;	// initial tetrimino, this is the one that falls.
-tetrimino next;	// next tetrimino to always be displayed top right of bard
+tetrimino next;	// next tetrimino to always be displayed top right of board
 int keyLastR;
 int keyLastC;
 int *keyLastT;
 int movedYet = 0;
-int updateSpeed = 10;
+int rotatedYet = 0;
+int updateSpeed = 20;
 int main() 
 { 
 	REG_DISPCTL = MODE3 | BG2_ENABLE;
@@ -30,7 +32,6 @@ int main()
 
 	// Generate random tetrimino to start falling and
 	// Generate random tetrimino to show as next tetrmino
-
 	int *t;
 	int tetType = qran_range(0,7);
 	t = tetriminos[tetType];
@@ -47,6 +48,8 @@ int main()
 	keyLastR = 0;
 	keyLastC = 5;
 	keyLastT = key.t;
+	drawMatrixBorders();
+	DEBUG_PRINT("\n[DEBUG]\n");
 	while(1); 
 
 }
@@ -63,14 +66,17 @@ void setupInterrupts(void)
 void interruptHandler()
 {
 	REG_IME = 0x0;	//	disable interrupts
-	if ((REG_IF & INT_BUTTON) && (movedYet == 0))
+	if ((REG_IF & INT_BUTTON) && (movedYet == 0) && (rotatedYet == 0))
 	{
+		printMatrix(key.t);
 		if (KEY_DOWN_NOW(KEY_RIGHT))
 			keyRight();
 		else if (KEY_DOWN_NOW(KEY_LEFT))
 			keyLeft();
-		else if (KEY_DOWN_NOW(KEY_UP))
-			keyHardDrop();
+		else if (KEY_DOWN_NOW(KEY_UP) && (rotatedYet == 0)) {
+			rotatedYet = 1;
+			keyRotateLeft();
+		}
 		else if (KEY_DOWN_NOW(KEY_DOWN))
 			keySoftDrop();
 		else if (KEY_DOWN_NOW(KEY_A))
@@ -87,10 +93,10 @@ void interruptHandler()
 		frame++;
 		if ((frame % updateSpeed)==0) 
 		{
+			clearTetrimino(keyLastR, keyLastC, keyLastT);
 			if (checkBoundBottom(key) != 1) {
-				clearTetrimino(keyLastR, keyLastC, keyLastT);
 				key.r = key.r + 1;
-				drawTetrimino(key);	
+				drawTetrimino(key);
 			} else {
 				placeKey();
 			}
@@ -100,6 +106,7 @@ void interruptHandler()
 			keyLastT = key.t;
 			// Move falling tetrimino down every second 
 			movedYet = 0;
+			rotatedYet = 0;
 		}
 	} 
 	REG_IF = REG_IF;
@@ -120,6 +127,8 @@ void enableButtonInterrupt()
 	REG_KEYCNT |= KEY_RIGHT;
 	REG_KEYCNT |= KEY_LEFT;
 	REG_KEYCNT |= KEY_DOWN;
+	REG_KEYCNT |= KEY_A;
+	REG_KEYCNT |= KEY_B;
 }
 
 void keyLeft() 
@@ -141,7 +150,33 @@ void keySoftDrop()
 	movedYet = 1;
 }
 void keyHardDrop() {}
-void keyRotateLeft() {}
+void keyRotateLeft() {
+	printMatrix(key.t);
+	clearTetrimino(key.r, key.c, key.t);
+	storeKeyPosition();
+	int a[16] = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0};
+	a[0] = key.t[12];
+	a[1] = key.t[8];
+	a[2] = key.t[4];
+	a[3] = key.t[0];
+	a[4] = key.t[13];
+	a[5] = key.t[9];
+	a[6] = key.t[5];
+	a[7] = key.t[1];
+	a[8] = key.t[14];
+	a[9] = key.t[10];
+	a[10] = key.t[6];
+	a[11] = key.t[2];
+	a[12] = key.t[15];
+	a[13] = key.t[11];
+	a[14] = key.t[7];
+	a[15] = key.t[3];
+	key.t = a;
+	DEBUG_PRINT("A:\n");
+	printMatrix(a);
+	DEBUG_PRINT("T:\n");
+	printMatrix(key.t);
+}
 void keyRotateRight() {}
 void showMenu() {}
 void pause() {}
@@ -156,7 +191,7 @@ void setNextPiece(tetrimino next) {
 	for (int x = 0; x < 4; x++) {
 		for (int y = 0; y<4; y++) {
 			if (next.t[x*4+y] == 1)
-				drawRect(20 + x*6, 170+y*6, 6, 6, next.color);
+				drawRect(20 + x*6, 170+y*6, 4, 4, next.color);
 		}
 	}
 }
@@ -180,10 +215,24 @@ void placeKey() {
 	next.color = colors[nextType];
 	setNextPiece(next);
 }
-int checkBoundBottom(tetrimino key) {
-		for (int x = 0; x<4; x++) {
-			if ((key.t[12+x] == 1) && (matrix[key.r+4][key.c+x] == 1))
-				return 1;
+
+void drawMatrixBorders() {
+	for (int i = 14; i <= 148; i++) {
+		setPixel(i, 88, YELLOW);
+		setPixel(i, 152, YELLOW);	
+	} 
+	for (int i = 88; i <= 152; i++) {
+		setPixel(14, i, YELLOW);
+		setPixel(148, i, YELLOW);
+	}
+}
+
+void printMatrix(int *m) {
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			DEBUG_PRINTF("%d ", m[4*i+j]);
 		}
-		return 0;
+		DEBUG_PRINT("\n");
+	}
+	DEBUG_PRINT("=======\n");
 }

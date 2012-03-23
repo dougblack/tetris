@@ -3,7 +3,7 @@
 
 u16 *videoBuffer = (u16*) 0x6000000;
 int matrix[22][10];
-int __qran_seed = 10123;
+int __qran_seed = 101234;
 /* FUNCTION DECLARATIONS */
 
 // Sets the pixel at row r, column c to color
@@ -43,9 +43,9 @@ void drawMatrix()
 	for (int x = 0; x < 22; x++) {
 		for (int y = 0; y < 10; y++) {
 			if (matrix[x][y]==1)
-				drawRect(20+x*6, 90+y*6, 6, 6, RED); 
+				drawRect(15+x*6, 90+y*6, 4, 4, RED); 
 			else 
-				drawRect(20+x*6, 90+y*6, 6, 6, LIGHTBLUE);
+				drawRect(15+x*6, 90+y*6, 6, 6, BLACK);
 		}
 	}
 }
@@ -101,3 +101,10 @@ int qran_range(int min, int max)
 	return (qran() * (max-min)>>15) + min;
 }
 
+int checkBoundBottom(tetrimino key) {
+		for (int x = 0; x<4; x++) {
+			if ((key.t[12+x] == 1) && ((matrix[key.r+4][key.c+x] == 1) || (key.r+4 > 21)))
+				return 1;
+		}
+		return 0;
+}

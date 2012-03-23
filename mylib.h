@@ -38,6 +38,7 @@ void clearTetrimino(int r, int c, int *t);
 void drawMatrix();
 void rotateLeft(tetrimino key);
 void rotateRight(tetrimino key);
+int checkBoundBottom(tetrimino key);
 
 int sqran(int seed);
 int qran();

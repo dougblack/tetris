@@ -32,7 +32,6 @@
 
 typedef unsigned int u32;
 
-int checkBoundBottom(tetrimino key);
 
 void setupInterrupts(void);
 void enableButtonInterrupt();
@@ -50,3 +49,5 @@ void pause();
 void storeKeyPosition();
 void setNextPiece(tetrimino next);
 void placeKey();
+void drawMatrixBorders();
+void printMatrix(int *m);
