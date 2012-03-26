@@ -30,8 +30,8 @@ do { \
 typedef unsigned short u16;
 typedef unsigned int u32;
 extern u16 *videoBuffer;
-extern int matrix[22][10];
-extern u16 colorMatrix[22][10];
+extern int matrix[26][10];
+extern u16 colorMatrix[26][10];
 extern int clearedLines;
 extern int level;
 extern int fallSpeed;

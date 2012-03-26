@@ -2,10 +2,10 @@
 #include "mylib.h"
 
 u16 *videoBuffer = (u16*) 0x6000000;
-int matrix[22][10];
+int matrix[26][10];
 int clearedLines;
 int level;
-u16 colorMatrix[22][10];
+u16 colorMatrix[26][10];
 int __qran_seed = 10;
 /* FUNCTION DECLARATIONS */
 
@@ -35,8 +35,8 @@ void drawTetrimino(tetrimino key)
 {
 	for (int x=0;x<4;x++) {
 		for (int y=0;y<4;y++) {
-			if (key.t[x*4+y] == 1) {
-				drawRect(15+(key.r+x)*6, 90+(key.c+y)*6, 4,4, key.color);
+			if (key.t[x*4+y] == 1 && (key.r+x>3)) {
+				drawRect(15+(key.r+x-4)*6, 90+(key.c+y)*6, 4,4, key.color);
 			}
 		}
 	}
@@ -44,12 +44,12 @@ void drawTetrimino(tetrimino key)
 
 void drawMatrix()
 {
-	for (int x = 0; x < 22; x++) {
+	for (int x = 4; x < 26; x++) {
 		for (int y = 0; y < 10; y++) {
 			if (matrix[x][y]==1)
-				drawRect(15+x*6, 90+y*6, 4, 4, colorMatrix[x][y]); 
+				drawRect(15+(x-4)*6, 90+y*6, 4, 4, colorMatrix[x][y]); 
 			else 
-				drawRect(15+x*6, 90+y*6, 6, 6, BLACK);
+				drawRect(15+(x-4)*6, 90+y*6, 6, 6, BLACK);
 		}
 	}
 }
@@ -58,8 +58,8 @@ void clearTetrimino(int r, int c, int *t)
 {
 	for (int x=0;x<4;x++) {
 		for (int y=0;y<4;y++) {
-			if (t[x*4+y] == 1) {
-				drawRect(15+(r+x)*6, 90+(c+y)*6, 4, 4, BLACK);
+			if (t[x*4+y] == 1 && (r+x>3)) {
+				drawRect(15+(r+x-4)*6, 90+(c+y)*6, 4, 4, BLACK);
 			}
 		}
 	}
@@ -110,7 +110,7 @@ int checkBoundBottom(tetrimino key) {
 	for (int x = 0; x<4; x++) {	
 		for (int y = 0; y<4; y++) {
 			if ((key.t[4*x+y] == 1) && 
-				((key.r+x+1 > 21) || 
+				((key.r+x+1 > 25) || 
 					((key.t[4*(x+1) + y] == 0) && (matrix[key.r+x+1][key.c+y] == 1))))
 				return 1;
 		}
@@ -143,7 +143,7 @@ int checkBoundLeft(tetrimino key) {
 
 void checkForScore() {
 //	DEBUG_PRINT("CHECKING FOR SCORE");
-	for (int i = 0; i < 22; i++) {
+	for (int i = 4; i < 26; i++) {
 		for (int j = 0; j < 10; j++) {
 			if (matrix[i][j] == 0)  {
 				break;
@@ -158,8 +158,8 @@ void checkForScore() {
 }
 
 void clearRow(int row) {
-	int tempMatrix[22][10];
-	for (int i = 21; i > 0; i--) {
+	int tempMatrix[26][10];
+	for (int i = 25; i > 3; i--) {
 		if (i > row) {
 			for (int j = 0; j<10; j++) {
 				tempMatrix[i][j] = matrix[i][j];
@@ -170,7 +170,7 @@ void clearRow(int row) {
 			}
 		}
 	}
-	for (int i = 0; i < 22; i++) {
+	for (int i = 4; i < 26; i++) {
 		for (int j = 0; j < 10; j++) {
 			if (i == 0)
 				matrix[i][j] = 0;
