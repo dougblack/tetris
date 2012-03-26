@@ -4,6 +4,7 @@
 #include "main.h"
 #include "input.h"
 #include "green.h"
+#include "black.h"
 #include <debugging.h>
 
 int tetriminos[7][16] =							// Tetrimino matrix
@@ -58,9 +59,7 @@ int main()
 
 	drawImage3(10,10,4,4,green);
 
-	for (int i = 0; i < 16; i++) {
-		keyLastT[i] = key.t[i];
-	}
+	dma_memcpy(keyLastT, key.t, 16*sizeof(int));
 
 	drawMatrixBorders();
 	DEBUG_PRINT("\n[DEBUG]\n");
@@ -131,9 +130,8 @@ void interruptHandler()
 			}
 			keyLastR = key.r;
 			keyLastC = key.c;
-			for (int i = 0; i < 16; i++) {
+			for (int i = 0; i < 16; i++) 
 				keyLastT[i] = key.t[i];
-			}
 			movedYet = 0;
 		}
 		if ((frame % rotateSpeed)==0)
@@ -208,9 +206,7 @@ void keyRotateLeft() {
 	a[13] = key.t[11];
 	a[14] = key.t[7];
 	a[15] = key.t[3];
-	for (int i = 0; i < 16; i++) {
-		key.t[i] = a[i];
-	}
+	dma_memcpy(key.t, a, 16*sizeof(int));
 }
 void keyRotateRight() {
 	clearTetrimino(key.r, key.c, key.t);
@@ -232,9 +228,7 @@ void keyRotateRight() {
 	a[13] = key.t[4];
 	a[14] = key.t[8];
 	a[15] = key.t[12];
-	for (int i = 0; i < 16; i++) {
-		key.t[i] = a[i];
-	}
+	dma_memcpy(key.t, a, 16*sizeof(int));
 }
 void showMenu() {}
 void pause() {}
@@ -300,11 +294,3 @@ void printMatrix(int *m) {
 	}
 	DEBUG_PRINT("=======\n");
 }
-
-void storeMatrix(int *to, int* from)
-{
-	for (int i = 0; i < 16; i++) {
-		to[i] = from[i];
-	}
-}
-

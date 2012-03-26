@@ -11,12 +11,12 @@ PROGNAME = Tetris
 
 # The object files you want to compile into your program
 # This should be a space (SPACE!) separated list of .o files
-OFILES = main.o mylib.o green.o
+OFILES = main.o mylib.o green.o black.o
 
 # The header files you have created.
 # This is necessary to determine when to recompile for files.
 # This should be a space (SPACE!) separated list of .h files
-HFILES = main.h mylib.h input.h green.h
+HFILES = main.h mylib.h input.h green.h black.o
 
 ################################################################################
 # These are various settings used to make the GBA toolchain work
