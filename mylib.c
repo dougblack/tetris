@@ -189,8 +189,20 @@ void incrementLines() {
 	}
 }
 
+void dma_memcpy(void *dst, const void *src, u16 count)
+{
+	dma_mem[3].cnt = 0;
+	dma_mem[3].src = src;
+	dma_mem[3].dst = dst;
+	dma_mem[3].cnt = count | DMA_ON;
+}
+
 void drawImage3(int r, int c, int width, int height, const u16* image)
 {
-	
-
+	int rowWidth = width;
+	for (int i = 0; i < height; i++) {
+		const u16* row = image+i*rowWidth;
+		u16 *dest = videoBuffer+((r+i)*240+c);
+		dma_memcpy(dest, row, rowWidth);
+	}
 }

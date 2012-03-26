@@ -3,6 +3,7 @@
 #include "mylib.h"
 #include "main.h"
 #include "input.h"
+#include "green.h"
 #include <debugging.h>
 
 int tetriminos[7][16] =							// Tetrimino matrix
@@ -54,6 +55,8 @@ int main()
 	key.c = 3;
 	keyLastR = 0;
 	keyLastC = 3;
+
+	drawImage3(10,10,4,4,green);
 
 	for (int i = 0; i < 16; i++) {
 		keyLastT[i] = key.t[i];
