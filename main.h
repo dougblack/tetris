@@ -1,5 +1,13 @@
 // main.h
 
+#include "input.h"
+#include "video.h"
+#include "green.h"
+#include "black.h"
+#include <debugging.h>
+
+extern int matrix[26][10];
+
 void setupInterrupts(void);
 void enableButtonInterrupt();
 void enableVBlankInterrupt();

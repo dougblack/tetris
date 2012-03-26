@@ -1,11 +1,6 @@
 // Douglas Black HW 8
 
-#include "mylib.h"
 #include "main.h"
-#include "input.h"
-#include "green.h"
-#include "black.h"
-#include <debugging.h>
 
 int tetriminos[7][16] =							// Tetrimino matrix
 {	{	0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0	},		// O 

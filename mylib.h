@@ -1,9 +1,7 @@
 // mylib.h
 
-#define REG_DISPCTL *(unsigned short *)0x4000000
-
-#define MODE3           3
-#define BG2_ENABLE      (1<<10)
+#include "green.h"
+#include "black.h"
 
 #define DMATRANSFER(_dst, _src, _count, _ch, _mode) \
 do { \
@@ -62,29 +60,16 @@ do { \
 #define DMA_IRQ (1 << 30)
 #define DMA_ON (1 << 31)  // The on switch!!!!
 
-#define RGB(r,g,b)		((r) | ((g)<<5) | ((b)<<10))
-#define RED             RGB(31,0,0)
-#define BLUE            RGB(0,0,31)
-#define GREEN           RGB(0,31,0)
-#define YELLOW          RGB(31,31,0)
-#define MAGENTA         RGB(31,0,31)
-#define CYAN            RGB(0,31,31)
-#define WHITE           RGB(31,31,31)
-#define LIGHTBLUE       RGB(0,0,10)
-#define LIGHTGREEN      RGB(0,10,0)
-#define LIGHTRED        RGB(31,10,0)
-#define BLACK			RGB(0,0,0) 
-
 typedef unsigned short u16;
 typedef unsigned int u32;
-extern u16 *videoBuffer;
 extern int matrix[26][10];
 extern u16 colorMatrix[26][10];
 extern int clearedLines;
 extern int level;
 extern int fallSpeed;
 
-typedef struct {
+typedef struct 
+{
 	int *t;
 	u16 color;
 	int r;
@@ -101,12 +86,7 @@ typedef struct
 #define dma_mem			((volatile DMAREC*) 0x040000B0)
 
 /* FUNCTION PROTOTYPES */
-void setPixel(int r, int c, u16 color);
-void drawRect(int r, int c, int width, int height, u16 color);
 void sleep(int length);
-void drawTetrimino(tetrimino key);
-void clearTetrimino(int r, int c, int *t);
-void drawMatrix();
 void rotateLeft(tetrimino key);
 void rotateRight(tetrimino key);
 int checkBoundBottom(tetrimino key);
@@ -116,7 +96,6 @@ void checkForScore();
 void clearRow(int row);
 void incrementLines();
 void dma_memcpy(void *dst, const void *src, u16 count);
-void drawImage3(int r, int c, int width, int height, const u16* image);
 
 int sqran(int seed);
 int qran();
