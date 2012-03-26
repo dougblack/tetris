@@ -38,26 +38,32 @@ int main()
 
 	// Generate random tetrimino to start falling and
 	// Generate random tetrimino to show as next tetrmino
-	int *t;
 	int tetType = qran_range(0,7);
-	t = tetriminos[tetType];
 	int nextType = qran_range(0,7);
+	int *t;
 	int *n;
+	t = tetriminos[tetType];
     n = tetriminos[nextType];
+
+	key.t = t;
 	next.t = n;
 	next.color = colors[nextType];
-	setNextPiece(next);
-	key.t = t;
 	key.color = colors[tetType];
+
 	key.r = 0;
 	key.c = 3;
 	keyLastR = 0;
 	keyLastC = 3;
+
 	for (int i = 0; i < 16; i++) {
 		keyLastT[i] = key.t[i];
 	}
+
 	drawMatrixBorders();
 	DEBUG_PRINT("\n[DEBUG]\n");
+
+	setNextPiece(next);
+
 	while(1); 
 
 }

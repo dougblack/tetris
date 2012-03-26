@@ -188,3 +188,9 @@ void incrementLines() {
 		fallSpeed-=5;
 	}
 }
+
+void drawImage3(int r, int c, int width, int height, const u16* image)
+{
+	
+
+}

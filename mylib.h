@@ -4,6 +4,15 @@
 
 #define MODE3           3
 #define BG2_ENABLE      (1<<10)
+#define dma_mem			((volatile DMAREC*) 0x040000b0
+
+#define DMATRANSFER(_dst, _src, _count, _ch, _mode) \
+do { \
+	dma_mem[_ch].cnt = 0; \
+	dma_mem[_ch].src = (const void*) (_src); \
+	dma_mem[_ch].dst = (void*) (_dst); \
+	dma_mem[_ch].cnt = (_count) | (_mode); \
+} while(0)
 
 #define RGB(r,g,b)		((r) | ((g)<<5) | ((b)<<10))
 #define RED             RGB(31,0,0)
@@ -19,6 +28,7 @@
 #define BLACK			RGB(0,0,0) 
 
 typedef unsigned short u16;
+typedef unsigned int u32;
 extern u16 *videoBuffer;
 extern int matrix[22][10];
 extern u16 colorMatrix[22][10];
@@ -32,6 +42,13 @@ typedef struct {
 	int r;
 	int c;
 } tetrimino;
+
+typedef struct tagDMAREC
+{
+	const void *src;
+	void *dst;
+	u32 cnt;
+} DMAREC;
 
 /* FUNCTION PROTOTYPES */
 void setPixel(int r, int c, u16 color);
@@ -48,6 +65,7 @@ int checkBoundRight(tetrimino key);
 void checkForScore();
 void clearRow(int row);
 void incrementLines();
+void drawImage3(int r, int c, int width, int height, const u16* image);
 
 int sqran(int seed);
 int qran();
