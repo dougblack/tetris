@@ -1,0 +1,61 @@
+void interruptHandler()
+{
+	REG_IME = 0x0;	//	disable interrupts
+	if ((REG_IF & INT_BUTTON) && (movedYet == 0) && (rotatedYet == 0) && (droppedYet == 0))
+	{
+		if (KEY_DOWN_NOW(KEY_RIGHT)) 
+			keyRight();
+		else if (KEY_DOWN_NOW(KEY_LEFT))
+			keyLeft();
+		else if (KEY_DOWN_NOW(KEY_UP)) {
+			droppedYet = 1;
+			keyHardDrop();
+		}
+		else if (KEY_DOWN_NOW(KEY_DOWN))
+			keySoftDrop();
+		else if (KEY_DOWN_NOW(KEY_A)) {
+			rotatedYet = 1;
+			keyRotateRight();
+		}
+		else if (KEY_DOWN_NOW(KEY_B)) {
+			rotatedYet = 1;
+			keyRotateLeft();
+		}
+		else if (KEY_DOWN_NOW(KEY_SELECT))
+			showMenu();
+		else if (KEY_DOWN_NOW(KEY_START))
+			pause();
+	} 	
+	if (REG_IF & INT_VB)
+	{
+		frame++;
+		if ((frame % fallSpeed)==0) 
+		{
+			placed = 0;
+			clearTetrimino(keyLastR, keyLastC, keyLastT);
+			if (checkBoundBottom(key) != 1) {
+				key.r = key.r + 1;
+				drawTetrimino(key);
+			} else {
+				placeKey();
+				placed = 1;
+			}
+		}
+		if ((frame % inputSpeed)==0)
+		{
+			if (placed == 0) {
+				clearTetrimino(keyLastR, keyLastC, keyLastT);
+				drawTetrimino(key);
+			}
+			keyLastR = key.r;
+			keyLastC = key.c;
+			for (int i = 0; i < 16; i++) 
+				keyLastT[i] = key.t[i];
+			movedYet = 0;
+		}
+		if ((frame % rotateSpeed)==0)
+			rotatedYet = 0;
+	} 
+	REG_IF = REG_IF;
+	REG_IME = 0x1;
+}

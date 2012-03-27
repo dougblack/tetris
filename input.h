@@ -1,5 +1,7 @@
 // input.h
 
+#include "video.h"
+
 //buttons
 #define KEY_A       0x0001
 #define KEY_B       0x0002
@@ -44,3 +46,16 @@
 #define INT_DMA3   1 << 11	// DMA3 – DMA3 finished interrupt
 #define INT_BUTTON 1 << 12	// BUTTON – button interrupt
 #define INT_CART   1 << 13	// CART – game cartridge interrupt
+
+u16 __key_prev, __key_curr;
+void key_poll();
+u32 key_curr_state();
+u32 key_prev_state();
+u32 key_is_down(u32 key);
+u32 key_is_up(u32 key);
+u32 key_was_down(u32 key);
+u32 key_was_up(u32 key);
+u32 key_transit(u32 key);
+u32 key_held(u32 key);
+u32 key_hit(u32 key);
+u32 key_released(u32 key);

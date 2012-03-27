@@ -1,9 +1,10 @@
 // main.h
 
 #include "input.h"
-#include "video.h"
 #include "green.h"
 #include "black.h"
+#include "title.h"
+#include "gameoverscreen.h"
 #include <debugging.h>
 
 extern int matrix[26][10];
@@ -27,3 +28,5 @@ void placeKey();
 void drawMatrixBorders();
 void printMatrix(int *m);
 void storeMatrix(int *to, int *from);
+void waitForVBlank();
+void gameOver();

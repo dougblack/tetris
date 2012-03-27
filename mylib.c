@@ -13,28 +13,6 @@ void sleep(int length) {
     for (int i = 0; i < length; i++) {}
 }
 
-void rotateLeft(tetrimino key) 
-{
-	for (int x = 0; x < 4; x++) {
-		for (int y = 0; y < 4; y++) {
-			int save = key.t[4*x+y];
-			key.t[4*x+y] = key.t[4*y+x];
-			key.t[4*y+x] = save;
-		}
-	}
-}
-
-void rotateRight(tetrimino key)
-{ 
-	for (int x = 0; x < 4; x++) {
-		for (int y = 0; y < 4; y++) {
-			int save = key.t[4*y+x];
-			key.t[4*y+x] = key.t[4*x+y];
-			key.t[4*x+y] = save;
-		}
-	}
-}
-
 int sqran(int seed)
 {
 	int old = __qran_seed;
@@ -105,6 +83,7 @@ void checkForScore() {
 
 void clearRow(int row) {
 	int tempMatrix[26][10];
+	//Store offset matrix to tempMatrix.
 	for (int i = 25; i > 3; i--) {
 		if (i > row) {
 			for (int j = 0; j<10; j++) {
@@ -116,6 +95,7 @@ void clearRow(int row) {
 			}
 		}
 	}
+	// Copy matrix back
 	for (int i = 4; i < 26; i++) {
 		for (int j = 0; j < 10; j++) {
 			if (i == 0)
@@ -134,12 +114,3 @@ void incrementLines() {
 		fallSpeed-=5;
 	}
 }
-
-void dma_memcpy(void *dst, const void *src, u16 count)
-{
-	dma_mem[3].cnt = 0;
-	dma_mem[3].src = src;
-	dma_mem[3].dst = dst;
-	dma_mem[3].cnt = count | DMA_ON;
-}
-

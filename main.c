@@ -28,10 +28,11 @@ int fallSpeed = 40;
 int inputSpeed = 10;
 int rotateSpeed = 20;
 int placed = 0;
+int gameover = 0;
 int main() 
 { 
 	REG_DISPCTL = MODE3 | BG2_ENABLE;
-	setupInterrupts();
+//	setupInterrupts();
 
 	// Generate random tetrimino to start falling and
 	// Generate random tetrimino to show as next tetrmino
@@ -52,58 +53,57 @@ int main()
 	keyLastR = 0;
 	keyLastC = 3;
 
-	drawImage3(10,10,4,4,green);
-
-	dma_memcpy(keyLastT, key.t, 16*sizeof(int));
+	for (int i = 0; i < 16; i++) {
+		keyLastT[i] = key.t[i];
+	}
+	
+	drawImage3(0,0,240,160,title);
+	while(1)
+	{
+		key_poll();
+		if (key_hit(KEY_START))
+			break;
+	}
+	
+	dma_mem[3].cnt = 0;
+	u16 *black = BLACK;
+	dma_mem[3].src = black;
+	dma_mem[3].dst = videoBuffer;
+	dma_mem[3].cnt = 38400 | DMA_ON | DMA_SOURCE_FIXED;
+		
 
 	drawMatrixBorders();
 	DEBUG_PRINT("\n[DEBUG]\n");
 
 	setNextPiece(next);
 
-	while(1); 
-
-}
-
-void setupInterrupts(void)
-{
-	REG_IME = 0x0; //disable interrupts
-	REG_INTERRUPT = (u32)interruptHandler; //set int handler
-	enableVBlankInterrupt();
-	enableButtonInterrupt();
-	REG_IME = 0x1; //enable interrupts
-}
-
-void interruptHandler()
-{
-	REG_IME = 0x0;	//	disable interrupts
-	if ((REG_IF & INT_BUTTON) && (movedYet == 0) && (rotatedYet == 0) && (droppedYet == 0))
+	while(!gameover) 
 	{
-		if (KEY_DOWN_NOW(KEY_RIGHT)) 
+		key_poll();		
+		if (key_hit(KEY_RIGHT)) 
 			keyRight();
-		else if (KEY_DOWN_NOW(KEY_LEFT))
+		else if (key_hit(KEY_LEFT))
 			keyLeft();
-		else if (KEY_DOWN_NOW(KEY_UP)) {
+		else if (key_hit(KEY_UP)) {
 			droppedYet = 1;
 			keyHardDrop();
 		}
-		else if (KEY_DOWN_NOW(KEY_DOWN))
+		else if (key_hit(KEY_DOWN))
 			keySoftDrop();
-		else if (KEY_DOWN_NOW(KEY_A)) {
+		else if (key_hit(KEY_A)) {
 			rotatedYet = 1;
 			keyRotateRight();
 		}
-		else if (KEY_DOWN_NOW(KEY_B)) {
+		else if (key_hit(KEY_B)) {
 			rotatedYet = 1;
 			keyRotateLeft();
 		}
-		else if (KEY_DOWN_NOW(KEY_SELECT))
+		else if (key_hit(KEY_SELECT))
 			showMenu();
-		else if (KEY_DOWN_NOW(KEY_START))
+		else if (key_hit(KEY_START))
 			pause();
-	} 	
-	if (REG_IF & INT_VB)
-	{
+
+		waitForVBlank();
 		frame++;
 		if ((frame % fallSpeed)==0) 
 		{
@@ -131,10 +131,28 @@ void interruptHandler()
 		}
 		if ((frame % rotateSpeed)==0)
 			rotatedYet = 0;
-	} 
-	REG_IF = REG_IF;
-	REG_IME = 0x1;
+	}
+
+	drawImage3(0,0,240,160,gameoverscreen);
+	while(1)
+	{
+		key_poll();
+		if (key_hit(KEY_START))
+			break;
+	}
+
+
 }
+
+/*void setupInterrupts(void)
+{
+	REG_IME = 0x0; //disable interrupts
+	REG_INTERRUPT = (u32)interruptHandler; //set int handler
+	enableVBlankInterrupt();
+	enableButtonInterrupt();
+	REG_IME = 0x1; //enable interrupts
+}*/
+
 
 void enableVBlankInterrupt()
 {
@@ -248,6 +266,8 @@ void placeKey() {
 	for (int x = 0; x < 4; x++) {
 		for (int y = 0; y < 4; y++) {
 			if (key.t[x*4+y] == 1) {
+				if (key.r+x <=4)
+					gameOver();
 				matrix[key.r+x][key.c+y] = 1;
 				colorMatrix[key.r+x][key.c+y] = key.color;
 			}
@@ -288,4 +308,14 @@ void printMatrix(int *m) {
 		DEBUG_PRINT("\n");
 	}
 	DEBUG_PRINT("=======\n");
+}
+
+void gameOver() {
+	gameover=1;
+}
+
+void waitForVBlank()
+{
+	while(SCANLINECOUNTER > 160);
+	while(SCANLINECOUNTER < 160);
 }

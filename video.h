@@ -1,6 +1,6 @@
 // video.h
 
-#include "mylib.h"
+#include "dma.h"
 
 #define REG_DISPCTL *(unsigned short *)0x4000000
 #define MODE3           3
@@ -17,6 +17,8 @@
 #define LIGHTGREEN      RGB(0,10,0)
 #define LIGHTRED        RGB(31,10,0)
 #define BLACK			RGB(0,0,0) 
+
+#define SCANLINECOUNTER (*(unsigned short *) 0x4000006)
 
 extern u16 *videoBuffer;
 extern int matrix[26][10];
