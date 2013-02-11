@@ -4,8 +4,8 @@
 
 void key_poll()
 {
-	__key_prev = __key_curr;
-	__key_curr = ~REG_KEYINPUT & KEY_MASK;	
+  __key_prev = __key_curr;
+  __key_curr = ~REG_KEYINPUT & KEY_MASK;	
 }
 
 u32 key_curr_state()		{ return __key_curr; }
